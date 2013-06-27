@@ -1,15 +1,13 @@
 Mop integration
 ===============
 
-Tests for integration between Mop, Montage and Mr.
+Tests integration between Mop, Montage and Mr.
 
 ## Environment variables
 
-These can be set by a CI system to vary the combination of projects that is
-tested.
+These can be set by a CI system to vary the combination of projects that is tested.
 
-`MR_VERSION` and `MONTAGE_VERSION` can be set at the same time, but that
-probably isn't a good idea.
+`MR_VERSION` and `MONTAGE_VERSION` may not be both set at the same time.
 
 ### MOP_VERSION, MR_VERSION, MONTAGE_VERSION
 
@@ -17,3 +15,5 @@ probably isn't a good idea.
    e.g. `#master`, or `#fb0b642`
  - npm tag. To use a published version in npm.
    e.g. `latest` to use the most recent version, or `0.13.0`.
+ - `.` + path. To use a directory relative to the current directory. For
+   testing while developing. e.g. `.`, `../mop`, `./dir/mop`

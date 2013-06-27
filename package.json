@@ -6,7 +6,10 @@
   "description": "Tests for integration between Mop, Montage and Mr.",
   "dependencies": {
     "q": "~0.9.6",
-    "q-io": "~1.9.1"
+    "q-io": "~1.9.1",
+    "wd": "0.0.32",
+    "joey": "~1.2.0",
+    "temp": "~0.5.0"
   },
   "bin": {
     "mop-integration": "integration.js"

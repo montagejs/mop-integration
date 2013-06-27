@@ -1,14 +1,67 @@
+#!/usr/bin/env node
+
 /*global describe,it,expect */
 var spawn = require("child_process").spawn;
 var FS = require("q-io/fs");
 var PATH = require("path");
 var Q = require("q");
 
-var optimize = require("../optimize");
+var install = require("./lib/install");
+var fixturesFor = require("./lib/fixtures-for");
 
-var DEBUG = false;
+global.DEBUG = false;
 var TIMEOUT = 10000;
 
+var MOP_VERSION = process.env.MOP_VERSION,
+    MR_VERSION = process.env.MR_VERSION,
+    MONTAGE_VERSION = process.env.MONTAGE_VERSION;
+
+if (MR_VERSION && MONTAGE_VERSION) {
+    throw new Error("MR_VERSION amd MONTAGE_VERSION may not be set at the same time");
+}
+if (!MOP_VERSION) {
+    throw new Error("MOP_VERSION must be set");
+}
+if (!MR_VERSION && !MONTAGE_VERSION) {
+    throw new Error("One of MR_VERSION amd MONTAGE_VERSION must be set");
+}
+
+var projectName, projectVersion;
+if (MR_VERSION) {
+    projectName = "mr";
+    projectVersion = MR_VERSION;
+} else {
+    projectName = "montage";
+    projectVersion = MONTAGE_VERSION;
+}
+
+console.log("Testing mop and " + projectName);
+
+// install Mop
+install("mop", MOP_VERSION)
+.then(function (mopLocation) {
+    console.log("Using mop " + MOP_VERSION + " in " + mopLocation);
+    return require(PATH.join(mopLocation));
+})
+.then(function (optimize) {
+    // install Mr/Montage
+    // Get fixtures depending on runtime
+    return Q.all([install(projectName, projectVersion), fixturesFor(projectName)])
+    .spread(function (projectLocation, fixtures) {
+        console.log("Using " + projectName + " " + projectVersion + " in " + projectLocation);
+
+        return fixtures.map(function (location) {
+            return test(PATH.basename(name), location);
+        });
+    });
+})
+.done();
+// for each fixture
+//      copy Mr/Montage
+//      Mop
+//      Run in phantom/browser
+//      report result
+/*
 describe("mopping", function () {
 
     describe("Mr", function () {
@@ -30,133 +83,6 @@ describe("mopping", function () {
     });
 
 });
-
-/**
- * Wrap executing a command in a promise
- * @param  {string} command command to execute
- * @param  {Array<string>} args    Arguments to the command.
- * @param  {string} cwd     The working directory to run the command in.
- * @return {Promise}        A promise for the completion of the command.
- */
-function exec(command, args, cwd) {
-    var deferred = Q.defer();
-    var proc = spawn(command, args, {
-        cwd: cwd,
-        stdio: DEBUG ? "inherit" : "ignore"
-    });
-    proc.on('exit', function(code) {
-        if (code !== 0) {
-            deferred.reject(new Error(command + " " + args.join(" ") + " in " + location + " exited with code " + code));
-        } else {
-            deferred.resolve();
-        }
-    });
-    return deferred.promise;
-}
-
-// Wrap shelling removing node_modules and running `npm install` in a promise.
-function npmSetup(location) {
-    var nodeModulesPath = PATH.join(location, "node_modules");
-    return FS.removeTree(nodeModulesPath)
-    // swallow failure for when node_modules does not exist
-    .fail(function () {})
-    .then(function () {
-        return FS.makeDirectory(nodeModulesPath);
-    })
-    // .then(function () {
-    //     // copy Mr and Montage into the node_modules
-    //     return Q.all([
-    //         FS.copyTree("node_modules/mr", PATH.join(nodeModulesPath, "mr")),
-    //         FS.copyTree("node_modules/montage", PATH.join(nodeModulesPath, "montage"))
-    //     ]);
-    // })
-    .then(function () {
-        // install any other dependencies
-        return exec("npm", ["install"], location);
-    });
-}
-
-/**
- * Serves a directory
- * @param  {string} location Path to the directory to serve
- * @return {string}          URL to the server
- */
-function serve(location) {
-    var joey = require("joey");
-
-    var server = joey
-    .error(true)
-    .fileTree(location)
-    .server();
-
-    server.listen(0).done();
-
-    var serverPort = server.node.address().port;
-    var serverUrl = "http://127.0.0.1:" + serverPort + "/";
-    if (DEBUG) {
-        console.log("Serving", location, "at", serverUrl);
-    }
-
-    return [server, serverUrl];
-}
-
-/**
- * Starts up PhantomJS with a webdriver interface
- * @return {Promise<wd>} Promise for an initialized browser from wd.js
- */
-function phantom() {
-    var wd = require("wd");
-
-    var phantomProc = spawn("phantomjs", ["--webdriver=127.0.0.1:8910"], {
-        stdio: DEBUG ? "inherit" : "ignore"
-    });
-
-    var browser = wd.promiseRemote("127.0.0.1", 8910);
-
-    // Kill phantom when the browser is quit
-    var originalQuit = browser.quit;
-    browser.quit = function () {
-        return originalQuit.call(browser)
-        .finally(function () {
-            phantomProc.kill();
-        });
-    };
-
-    // wait for Ghost Driver to start running
-    return Q.delay(2000)
-    .then(function () {
-        return browser.init();
-    })
-    .then(function () {
-        return browser;
-    });
-}
-
-function run(browser, url) {
-    var POLL_TIME = 250;
-
-    return browser.get(url)
-    .then(function () {
-        var done = Q.defer();
-
-        var poll = function() {
-            browser.execute("return window.done").then(function (isDone) {
-                if (isDone) {
-                    done.resolve();
-                } else {
-                    setTimeout(poll, POLL_TIME);
-                }
-            }, done.reject);
-        };
-        poll();
-
-        return done.promise;
-    })
-    .then(function () {
-        return browser.execute("return window.error");
-    })
-    .timeout(TIMEOUT, "Timeout waiting for window.done");
-}
 
 function test(name, location) {
     var buildLocation = PATH.join(location, "builds", name);
@@ -186,3 +112,4 @@ function test(name, location) {
         expect(error).toBe(null);
     });
 }
+*/
