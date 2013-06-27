@@ -1,0 +1,14 @@
+{
+  "name": "mop-integration",
+  "private": true,
+  "version": "0.0.0",
+  "title": "Mop integration tests",
+  "description": "Tests for integration between Mop, Montage and Mr.",
+  "dependencies": {
+    "q": "~0.9.6",
+    "q-io": "~1.9.1"
+  },
+  "bin": {
+    "mop-integration": "integration.js"
+  }
+}
