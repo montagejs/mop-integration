@@ -9,18 +9,18 @@ var Q = require("q");
 var install = require("./lib/install");
 var fixturesFor = require("./lib/fixtures-for");
 
-global.DEBUG = false;
+global.DEBUG = process.env.DEBUG == "true";
 var TIMEOUT = 10000;
 
 var MOP_VERSION = process.env.MOP_VERSION,
     MR_VERSION = process.env.MR_VERSION,
     MONTAGE_VERSION = process.env.MONTAGE_VERSION;
 
-if (MR_VERSION && MONTAGE_VERSION) {
-    throw new Error("MR_VERSION amd MONTAGE_VERSION may not be set at the same time");
-}
 if (!MOP_VERSION) {
     throw new Error("MOP_VERSION must be set");
+}
+if (MR_VERSION && MONTAGE_VERSION) {
+    throw new Error("MR_VERSION amd MONTAGE_VERSION may not be set at the same time");
 }
 if (!MR_VERSION && !MONTAGE_VERSION) {
     throw new Error("One of MR_VERSION amd MONTAGE_VERSION must be set");
@@ -51,7 +51,7 @@ install("mop", MOP_VERSION)
         console.log("Using " + projectName + " " + projectVersion + " in " + projectLocation);
 
         return fixtures.map(function (location) {
-            return test(PATH.basename(name), location);
+            return test(PATH.basename(location), location);
         });
     });
 })
