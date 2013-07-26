@@ -112,7 +112,11 @@ function test(optimize, name, fs) {
             return run(browser, url + "index.html")
             .finally(function () {
                 server.stop();
-                browser.quit().done();
+                var quit = browser.quit();
+                // want to show any error messages from shutting down phantom
+                // and also wait until it is done
+                quit.done();
+                return quit;
             });
         });
     })
