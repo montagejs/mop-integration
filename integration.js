@@ -4,6 +4,7 @@ var spawn = require("child_process").spawn;
 var FS = require("q-io/fs");
 var PATH = require("path");
 var Q = require("q");
+require('colors');
 
 var exec = require("./lib/exec");
 var install = require("./lib/install");
@@ -61,13 +62,22 @@ install("mop", MOP_VERSION)
 
             // lets run those fixtures in a mock fs
             return fixtures.reduce(function (previous, location) {
+                var name = PATH.basename(location);
                 return previous.then(function () {
                     return FS.mock(location);
                 })
                 .then(function (fixtureFs) {
                     // Mix in Mr/Montage package
                     fixtureFs._init(tree);
-                    return test(optimize, PATH.basename(location), fixtureFs);
+                    return test(optimize, name, fixtureFs);
+                })
+                .then(function (errorMessage) {
+                    if (errorMessage) {
+                        console.log((name + " failed: " + errorMessage).red);
+                    } else {
+                        console.log((name + " passed").green);
+                    }
+                    console.log();
                 });
             }, Q());
         });
@@ -119,9 +129,5 @@ function test(optimize, name, fs) {
                 return quit;
             });
         });
-    })
-    .then(function (error) {
-        console.log("error", error);
-        console.log("done with", name);
     });
 }
