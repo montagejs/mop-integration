@@ -8,9 +8,11 @@ var Q = require("q");
 var exec = require("./lib/exec");
 var install = require("./lib/install");
 var fixturesFor = require("./lib/fixtures-for");
+var serve = require("./lib/serve");
+var phantom = require("./lib/phantom");
 var run = require("./lib/run-page");
 
-global.DEBUG = process.env.DEBUG == "true";
+global.DEBUG = process.env.DEBUG === "true";
 var TIMEOUT = 10000;
 
 var MOP_VERSION = process.env.MOP_VERSION,
@@ -92,59 +94,30 @@ function makeMockTree(fs, root) {
     });
 }
 
-// for each fixture
-//      copy Mr/Montage
-//      Mop
-//      Run in phantom/browser
-//      report result
-/*
-describe("mopping", function () {
-
-    describe("Mr", function () {
-        [
-            "simple",
-            "module"
-        ].forEach(function (name) {
-            it(name, function (done) {
-                var self = this;
-
-                var location = PATH.join(__dirname, "fixtures", "mr", name);
-                test(name, location, done).
-                fail(function (error) {
-                    self.fail(error);
-                })
-                .finally(done);
-            }, TIMEOUT * 2);
-        });
-    });
-
-});
-*/
-
 function test(optimize, name, fs) {
     console.log("Running Mop on " + name);
 
     var config = {
         fs: fs,
         // If debug pass undefined so we get default output, otherwise disable
-        out: DEBUG ? void 0 : {}
+        out: global.DEBUG ? void 0 : {}
     };
 
     return optimize("/", config)
     .then(function (buildPath) {
-        // var value = serve(buildPath, fs),
-        //     server = value[0],
-        //     url = value[1];
-        // return phantom().then(function (browser) {
-        //     return run(browser, url + "index.html")
-        //     .finally(function () {
-        //         server.stop();
-        //         browser.quit().done();
-        //     });
-        // });
+        var value = serve(fs, buildPath),
+            server = value[0],
+            url = value[1];
+        return phantom().then(function (browser) {
+            return run(browser, url + "index.html")
+            .finally(function () {
+                server.stop();
+                browser.quit().done();
+            });
+        });
     })
     .then(function (error) {
-        // expect(error).toBe(null);
+        console.log("error", error);
         console.log("done with", name);
     });
 }
