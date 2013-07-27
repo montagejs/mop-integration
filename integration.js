@@ -54,7 +54,8 @@ install("mop", MOP_VERSION)
     .spread(function (projectLocation, fixtures) {
         console.log("Using " + projectName + " " + projectVersion + " in " + projectLocation);
 
-        return makeMockTree(FS, projectLocation)
+        return FS.reroot(projectLocation)
+        .invoke("toObject")
         .then(function (files) {
             var tree = {};
             // put files in `node_modules/projectName` directory
@@ -84,25 +85,6 @@ install("mop", MOP_VERSION)
     });
 })
 .done();
-
-function makeMockTree(fs, root) {
-    return Q.when(fs.listTree(root), function (list) {
-        var tree = {};
-        return Q.all(list.map(function (path) {
-            var actual = fs.join(root, path);
-            var relative = fs.relativeFromDirectory(root, actual);
-            return Q.when(fs.stat(actual), function (stat) {
-                if (stat.isFile()) {
-                    return Q.when(fs.read(path, "rb"), function (content) {
-                        tree[relative] = content;
-                    });
-                }
-            });
-        })).then(function () {
-            return tree;
-        });
-    });
-}
 
 function test(optimize, name, fs) {
     console.log("Running Mop on " + name);
