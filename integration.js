@@ -96,6 +96,13 @@ function test(optimize, name, fs) {
     };
 
     return optimize("/", config)
+    .fail(function (error) {
+        return fs.listTree()
+        .then(function (tree) {
+            console.error(tree);
+            throw error;
+        });
+    })
     .then(function (buildPath) {
         var value = serve(fs, buildPath),
             server = value[0],
