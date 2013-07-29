@@ -13,6 +13,11 @@ var serve = require("./lib/serve");
 var phantom = require("./lib/phantom");
 var run = require("./lib/run-page");
 
+// FIXME: Q 0.9.6 uses process.nextTick and exceeds the maxTickDepth when
+// mopping Montage. As a temporary fix increase the limit.
+// Remove when Q uses setImmediate instead.
+process.maxTickDepth = 5000;
+
 global.DEBUG = process.env.DEBUG === "true";
 var TIMEOUT = 10000;
 
