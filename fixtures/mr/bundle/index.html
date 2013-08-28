@@ -5,10 +5,13 @@
     <title></title>
     <script>
     (function () {
+        window.injectedScripts = [];
+
         var head = document.querySelector("head")
         var appendChild = head.appendChild;
         head.appendChild = function (el) {
             if (el.tagName === "SCRIPT") {
+                window.injectedScripts.push(el.src);
                 el.onerror = scriptError;
             }
             return appendChild.apply(head, arguments);
