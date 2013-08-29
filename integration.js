@@ -64,6 +64,7 @@ install("mop", MOP_VERSION)
             // put files in `node_modules/projectName` directory
             tree[PATH.join("node_modules", projectName)] = files;
 
+            var failed = false;
             // lets run those fixtures in a mock fs
             return fixtures.reduce(function (previous, location) {
                 var name = PATH.basename(location);
@@ -78,12 +79,18 @@ install("mop", MOP_VERSION)
                 .then(function (errorMessage) {
                     if (errorMessage) {
                         console.log((name + " failed: " + errorMessage).red);
+                        failed = true;
                     } else {
                         console.log((name + " passed").green);
                     }
                     console.log();
                 });
-            }, Q());
+            }, Q())
+            .then(function () {
+                if (failed) {
+                    throw new Error("Test failed");
+                }
+            });
         });
     });
 })
