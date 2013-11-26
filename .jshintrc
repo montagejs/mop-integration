@@ -28,6 +28,10 @@
         "Map": true,
         "Set": true,
 
-        "console": false
+        "console": false,
+
+        "describe": false,
+        "it": false,
+        "expect": false
     }
 }
