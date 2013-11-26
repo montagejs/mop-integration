@@ -11,6 +11,12 @@ var install = require("./lib/install");
 var fixturesFor = require("./lib/fixtures-for");
 var test = require("./lib/test");
 
+process.on('uncaughtException', function (error) {
+    console.error("uncaughtException", error);
+    console.error("stack", error.stack);
+    throw error;
+});
+
 // FIXME: Q 0.9.6 uses process.nextTick and exceeds the maxTickDepth when
 // mopping Montage. As a temporary fix increase the limit.
 // Remove when Q uses setImmediate instead.
