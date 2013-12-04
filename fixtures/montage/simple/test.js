@@ -1,6 +1,6 @@
-var Montage = require("montage");
+var Montage = require("montage").Montage;
 
-exports.Test = Montage.create(Montage, {
+exports.Test = Montage.specialize({
 
     draw: {
         value: function () {
