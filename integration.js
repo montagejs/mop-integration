@@ -84,11 +84,11 @@ install("mop", MOP_VERSION)
                     // needs, and so we can only test the mopping, not that it
                     // actually runs
                     var shouldTestInBrowser = projectName !== "montage";
-                    return test(optimize, name, fixtureFs, shouldTestInBrowser);
+                    return test(optimize, projectName, name, fixtureFs, shouldTestInBrowser);
                 })
-                .then(function (errorMessage) {
-                    if (errorMessage) {
-                        console.log((name + " failed: " + errorMessage).red);
+                .then(function (errorMessages) {
+                    if (errorMessages && errorMessages.length !== 0) {
+                        console.log((name + " failed: \n" + errorMessages.join('\n')).red);
                         failed = true;
                     } else {
                         console.log((name + " passed").green);
