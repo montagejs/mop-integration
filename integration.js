@@ -80,11 +80,7 @@ install("mop", MOP_VERSION)
                 .then(function (fixtureFs) {
                     // Mix in Mr/Montage package
                     fixtureFs._init(tree);
-                    // PhantomJS doesn't support all the ES5 features Montage
-                    // needs, and so we can only test the mopping, not that it
-                    // actually runs
-                    var shouldTestInBrowser = projectName !== "montage";
-                    return test(optimize, projectName, name, fixtureFs, shouldTestInBrowser);
+                    return test(optimize, projectName, name, fixtureFs);
                 })
                 .then(function (errorMessages) {
                     if (errorMessages && errorMessages.length !== 0) {
