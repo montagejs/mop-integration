@@ -8,7 +8,7 @@ require('colors');
 
 var exec = require("./lib/exec");
 var install = require("./lib/install");
-var fixturesFor = require("./lib/fixtures-for");
+var fixturesFor = require("./lib/fixtures-for").fixturesFor;
 var test = require("./lib/test");
 
 process.on('uncaughtException', function (error) {
