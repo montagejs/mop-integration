@@ -8,7 +8,7 @@ require('colors');
 
 var exec = require("./lib/exec");
 var install = require("./lib/install");
-var fixturesFor = require("./lib/fixtures-for");
+var fixturesFor = require("./lib/fixtures-for").fixturesFor;
 var test = require("./lib/test");
 
 process.on('uncaughtException', function (error) {
@@ -80,15 +80,11 @@ install("mop", MOP_VERSION)
                 .then(function (fixtureFs) {
                     // Mix in Mr/Montage package
                     fixtureFs._init(tree);
-                    // PhantomJS doesn't support all the ES5 features Montage
-                    // needs, and so we can only test the mopping, not that it
-                    // actually runs
-                    var shouldTestInBrowser = projectName !== "montage";
-                    return test(optimize, name, fixtureFs, shouldTestInBrowser);
+                    return test(optimize, projectName, name, fixtureFs);
                 })
-                .then(function (errorMessage) {
-                    if (errorMessage) {
-                        console.log((name + " failed: " + errorMessage).red);
+                .then(function (errorMessages) {
+                    if (errorMessages && errorMessages.length !== 0) {
+                        console.log((name + " failed: \n" + errorMessages.join('\n')).red);
                         failed = true;
                     } else {
                         console.log((name + " passed").green);
