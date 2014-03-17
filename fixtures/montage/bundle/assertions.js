@@ -16,13 +16,13 @@ exports.run = function (fs, buildPath) {
         fs.stat(path.join(buildPath, APP_BUNDLE_PATH))
         .then(function (stat) {
             if (stat.isFile()) {
-                return fs.read(path.join(buildPath, APP_BUNDLE_PATH))
+                return fs.read(path.join(buildPath, APP_BUNDLE_PATH));
             }
         })
         .then(function (content) {
             if(content.indexOf("test_html_content") === -1) {
-                 return "HTML File not bundled";
+                return "HTML File not bundled";
             }
         })
     ]);
-}
+};
