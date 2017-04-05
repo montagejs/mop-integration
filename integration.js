@@ -99,6 +99,7 @@ install("mop", MOP_VERSION)
             });
         });
     });
-})
-.done();
-
+}).catch(function (err) {
+    console.log(err.stack);
+    process.exit(1);
+});
