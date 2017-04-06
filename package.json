@@ -20,6 +20,7 @@
     "mop-integration": "integration.js"
   },
   "scripts": {
-    "test": "jasmine-node spec && MOP_VERSION=#master MR_VERSION=#master DEBUG=true ./integration.js && MOP_VERSION=#master MONTAGE_VERSION=#master DEBUG=true ./integration.js && jshint ."
+    "integration": "node integration.js",
+    "test": "jasmine-node spec && jshint ."
   }
 }

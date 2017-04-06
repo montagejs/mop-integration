@@ -33,10 +33,10 @@ if (!MOP_VERSION) {
     throw new Error("MOP_VERSION must be set");
 }
 if (MR_VERSION && MONTAGE_VERSION) {
-    throw new Error("MR_VERSION amd MONTAGE_VERSION may not be set at the same time");
+    throw new Error("MR_VERSION and MONTAGE_VERSION may not be set at the same time");
 }
 if (!MR_VERSION && !MONTAGE_VERSION) {
-    throw new Error("One of MR_VERSION amd MONTAGE_VERSION must be set");
+    throw new Error("One of MR_VERSION and MONTAGE_VERSION must be set");
 }
 
 var projectName, projectVersion;
@@ -99,6 +99,7 @@ install("mop", MOP_VERSION)
             });
         });
     });
-})
-.done();
-
+}).catch(function (err) {
+    console.log(err.stack);
+    process.exit(1);
+});
