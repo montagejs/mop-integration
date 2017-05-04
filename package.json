@@ -1,15 +1,20 @@
 {
   "name": "mop-integration",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.1",
   "title": "Mop integration tests",
   "description": "Tests for integration between Mop, Montage and Mr.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/montagejs/mop-integration.git"
+  },
+  "license": "BSD-3-Clause",
   "dependencies": {
     "colors": "^1.1.2",
     "joey": "^1.5.1",
     "phantom-wd": "0.0.2",
     "q": "^1.5.0",
-    "q-io": "~1.11.0",
+    "q-io": "^1.13.4",
     "temp": "^0.8.3"
   },
   "devDependencies": {
@@ -21,6 +26,6 @@
   },
   "scripts": {
     "integration": "node integration.js",
-    "test": "jasmine-node spec && jshint ."
+    "test": "jshint ."
   }
 }
