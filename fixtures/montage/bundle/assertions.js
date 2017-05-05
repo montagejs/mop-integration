@@ -4,7 +4,7 @@ var path = require("path");
 // PhantomJS doesn't support all the ES5 features Montage
 // needs, and so we can only test the mopping, not that it
 // actually runs
-exports.shouldTestInBrowser = true;
+exports.shouldTestInBrowser = false;
 
 var APP_BUNDLE_PATH = "index.html.bundle-0.js";
 
