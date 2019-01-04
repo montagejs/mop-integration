@@ -68,7 +68,9 @@ install("mop", MOP_VERSION)
         .then(function (files) {
             var tree = {};
             // put files in `node_modules` directory
+            // jshint -W069
             tree["node_modules"] = files;
+            // jshint +W069
 
             var failed = false;
             // lets run those fixtures in a mock fs
