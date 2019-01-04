@@ -62,8 +62,9 @@ install("mop", MOP_VERSION)
     return Q.all([install(projectName, projectVersion), fixturesFor(projectName)])
     .spread(function (projectLocation, fixtures) {
         console.log("Using " + projectName + " " + projectVersion + " in " + projectLocation);
+        var nodeModulesLocation = PATH.join(projectLocation, "..");
 
-        return FS.reroot(projectLocation)
+        return FS.reroot(nodeModulesLocation)
         .invoke("toObject")
         .then(function (files) {
             var tree = {};
