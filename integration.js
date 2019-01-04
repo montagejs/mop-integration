@@ -67,8 +67,8 @@ install("mop", MOP_VERSION)
         .invoke("toObject")
         .then(function (files) {
             var tree = {};
-            // put files in `node_modules/projectName` directory
-            tree[PATH.join("node_modules", projectName)] = files;
+            // put files in `node_modules` directory
+            tree["node_modules"] = files;
 
             var failed = false;
             // lets run those fixtures in a mock fs
