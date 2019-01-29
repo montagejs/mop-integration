@@ -4,6 +4,7 @@ var spawn = require("child_process").spawn;
 var FS = require("q-io/fs");
 var PATH = require("path");
 var Q = require("q");
+var temp = require('temp');
 require('colors');
 
 var exec = require("./lib/exec");
@@ -48,66 +49,43 @@ if (MR_VERSION) {
     projectVersion = MONTAGE_VERSION;
 }
 
-function buildMockTree() {
-    return install(projectName, projectVersion).then(function (packageLocations) {
-        console.log("Using " + projectName + " " + projectVersion + " in " + packageLocations[0]);
-        var tree = {};
-        return packageLocations.reduce(function (previous, packageLocation) {
-            return previous.then(function () {
-                var packageName = PATH.basename(packageLocation);
-                return FS.reroot(packageLocation).then(function (fs) {
-                    return fs.toObject();
-                }).then(function (files) {
-                    // Add the package into the new tree's node_modules
-                    tree[PATH.join("node_modules", packageName)] = files;
-                });
-            });
-        }, Q()).then(function () {
-            return tree;
-        });
-    });
-}
-
 console.log("Testing mop and " + projectName);
 
-// install Mop
-install("mop", MOP_VERSION)
-.then(function (packageLocations) {
-    var mopLocation = packageLocations[0];
-    console.log("Using mop " + MOP_VERSION + " in " + mopLocation);
-    return require(PATH.join(mopLocation));
-})
-.then(function (optimize) {
-    // install Mr/Montage
-    // Get fixtures depending on runtime
-    return Q.all([buildMockTree(), fixturesFor(projectName)])
-    .spread(function (tree, fixtures) {
-        var failed = false;
-        // lets run those fixtures in a mock fs
-        return fixtures.reduce(function (previous, location) {
-            var name = PATH.basename(location);
-            return previous.then(function () {
-                return FS.mock(location);
-            })
-            .then(function (fixtureFs) {
-                // Mix in Mr/Montage package
-                fixtureFs._init(tree);
-                return test(optimize, projectName, name, fixtureFs);
-            })
-            .then(function (errorMessages) {
-                if (errorMessages && errorMessages.length !== 0) {
-                    console.log((name + " failed: \n" + errorMessages.join('\n')).red);
-                    failed = true;
-                } else {
-                    console.log((name + " passed").green);
+var tempDir = temp.mkdirSync('mop-integration');
+FS.copyTree(PATH.join(__dirname, "fixtures"), tempDir)
+.then(function () {
+    return install("mop", MOP_VERSION, tempDir)
+    .then(function () {
+        var optimize = require(PATH.join(tempDir, "node_modules", "mop"));
+        // Get fixtures depending on runtime
+        var fixturesPath = PATH.join(tempDir, projectName);
+        return FS.list(fixturesPath)
+        .then(function (names) {
+            var failed = false;
+            return names.reduce(function (previous, name) {
+                var dir = PATH.join(fixturesPath, name);
+                return previous.then(function () {
+                    // install Mr/Montage
+                    return install(projectName, projectVersion, dir);
+                })
+                .then(function () {
+                    return test(optimize, projectName, name, FS, dir);
+                })
+                .then(function (errorMessages) {
+                    if (errorMessages && errorMessages.length !== 0) {
+                        console.log((name + " failed: \n" + errorMessages.join('\n')).red);
+                        failed = true;
+                    } else {
+                        console.log((name + " passed").green);
+                    }
+                    console.log();
+                });
+            }, Q())
+            .then(function () {
+                if (failed) {
+                    throw new Error("Test failed");
                 }
-                console.log();
             });
-        }, Q())
-        .then(function () {
-            if (failed) {
-                throw new Error("Test failed");
-            }
         });
     });
 }).catch(function (err) {
